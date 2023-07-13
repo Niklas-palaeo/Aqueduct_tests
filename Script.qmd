@@ -2,7 +2,6 @@
 title: "Aqueduct data"
 format: pdf
 editor: visual
-editor_options: 
 ---
 
 ```{r Libraries}
