@@ -4,6 +4,8 @@ format: pdf
 editor: visual
 ---
 
+Hello! How can I help you with R programming today?
+
 ```{r Libraries}
 #| include: false
 library(tidyverse,warn.conflicts = FALSE)
@@ -11,21 +13,42 @@ library(here)
 library(cowplot)
 library(viridis)
 library(patchwork)
+library(gptstudio)
 ```
 
 ```{r Data}
 #| include: false
-AQ1 <- read_csv(here("B30.csv")) %>% mutate(line="30 μm")
-AQ2 <- read_csv(here("A100.csv")) %>% mutate(line="100 μm") %>% map_df(rev)
-AQ <- bind_rows(AQ1,AQ2) %>% 
+# Read the `B30.csv` file using `read_csv` from the `here` package
+AQ1 <- read_csv(here("B30.csv")) %>% 
+  mutate(line = "30 μm")  # Add a new column called "line" with the value "30 μm"
+    
+# Read the `A100.csv` file using `read_csv` from the `here` package
+# Add a new column called "line" with the value "100 μm"
+# Reverse the rows using the `map_df` function from `purrr` package
+AQ2 <- read_csv(here("A100.csv")) %>% 
+  mutate(line = "100 μm") %>% 
+  map_df(rev)
+
+# Combine the data frames AQ1 and AQ2 using `bind_rows` from the `dplyr` package
+# Group the combined data frame by the "line" column
+# Calculate the "dist" column based on the row number and the "line" value
+AQ <- bind_rows(AQ1, AQ2) %>% 
   group_by(line) %>% 
-  mutate(dist=if_else(line=="30 μm",row_number()*0.03,row_number()*0.1))
+  mutate(dist = if_else(line == "30 μm", row_number()*0.03, row_number()*0.1))
 
-Map_mg <- read_csv(here("MapMg.csv")) %>% mutate(element="Mg/Ca")
-Map_sr <- read_csv(here("MapSr.csv")) %>% mutate(element="Sr/Ca") %>%   filter(mg_ca<0.25)
+# Read the `MapMg.csv` file using `read_csv` from the `here` package
+Map_mg <- read_csv(here("MapMg.csv")) %>% 
+  mutate(element = "Mg/Ca")  # Add a new column called "element" with the value "Mg/Ca"
 
+# Read the `MapSr.csv` file using `read_csv` from the `here` package
+# Add a new column called "element" with the value "Sr/Ca"
+# Filter the rows where "mg_ca" is less than 0.25
+Map_sr <- read_csv(here("MapSr.csv")) %>% 
+  mutate(element = "Sr/Ca") %>% 
+  filter(mg_ca < 0.25)
 
-Maps <-  bind_rows(Map_mg,Map_sr)
+# Combine the data frames Map_mg and Map_sr using `bind_rows` from the `dplyr` package
+Maps <- bind_rows(Map_mg, Map_sr)
 ```
 
 ## Line scan
