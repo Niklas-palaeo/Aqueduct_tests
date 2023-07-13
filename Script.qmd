@@ -31,7 +31,7 @@ Maps <-  bind_rows(Map_mg,Map_sr)
 
 ## Line scan
 
-I've tested out two very simple line scans at 30 micrometers and 100 micrometer resolutions. The spot sizes were both time around 30 micrometers in diameter. The 30 micrometer resolution in blue more accurately describes the shape of the peaks as increasing and then dropping abruptly. The shapes are less repetitive in the 100 micrometer resolution scan, presumably because some features of the peaks were not covered equally, so that some very high values were left out of the scan.
+I've tested out two very simple line scans at 30 µm and 100 µm resolutions. The spot sizes were both times around 30 µm in diameter. The 30 µm resolution in blue more accurately describes the shape of the peaks as waves, which increase and the drop abruptly. The shapes are less repetitive in the 100 µm resolution scan, presumably because some features of the peaks were not covered equally, so that some very high values were skipped and left out of the scan.
 
 ```{r Plot}
 #| fig-cap: "Two line scans at different resolutions."
@@ -49,7 +49,9 @@ AQ %>%
 
 ## 2D maps
 
-I also ran 2-dimensional scans at 150 micrometers. The resolution here should not be a big problem as it would be for a line scan, because the increments of the sample are covered multiple times by the less resolved samples spots. By working in two dimensions we can get a better idea of how the elemental ratios change across one increment.
+I also ran 2-dimensional scans at 150 µm. The resolution here should not be a big problem as it would be the case for a line scan, because the increments of the sample are covered multiple times by the less resolved samples spots. By working in two dimensions we can get a better idea of how the elemental ratios change across one increment.
+
+The Mg/Ca
 
 The 2D map show a long white area at the bottom. This is an uneven feature of the surface, which led to the laser not being focused accurately and no plasma being generated. We thus have elemental ratios of the background data, which produces erroneous results.
 
@@ -58,27 +60,30 @@ The 2D map show a long white area at the bottom. This is an uneven feature of th
 #| fig-height: 6
 #| fig-dpi: 600
 
-Mg <- Map_mg %>% 
-  filter(std<0.08) %>% 
+Mg <-
+  Map_mg %>% 
+  filter(std<0.08) %>%
+  filter(mg_ca<0.7) %>% 
   ggplot()+
   aes(y,x,fill=mg_ca, col=mg_ca)+
-  geom_tile(show.legend = FALSE)+
-  # facet_wrap(~line,nrow = 2)+
+  # geom_tile(show.legend = FALSE)+
+    geom_point(show.legend = FALSE)+
   labs(x= "mm", y="mm", subtitle="Mg/Ca")+
-  scale_fill_viridis(option = "G") +
-  scale_color_viridis(option = "G") +
+  scale_fill_viridis(option = "D") +
+  scale_color_viridis(option = "D") +
   coord_fixed()+
   theme_cowplot()
 
 Sr <- Map_sr %>% 
   filter(std<0.08) %>% 
+  filter(mg_ca<0.7) %>% 
   ggplot()+
   aes(y,x,fill=mg_ca, col=mg_ca)+
-  geom_tile(show.legend = FALSE)+
-  # facet_wrap(~line,nrow = 2)+
+  # geom_tile(show.legend = FALSE)+
+  geom_point(show.legend = FALSE)+
   labs(x= "mm", y="mm", subtitle="Sr/Ca")+
-  scale_fill_viridis(option = "G") +
-  scale_color_viridis(option = "G") +
+  scale_fill_viridis(option = "D") +
+  scale_color_viridis(option = "D") +
   coord_fixed()+
   theme_cowplot()
 
