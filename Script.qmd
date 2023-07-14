@@ -4,8 +4,6 @@ format: pdf
 editor: visual
 ---
 
-Hello! How can I help you with R programming today?
-
 ```{r Libraries}
 #| include: false
 library(tidyverse,warn.conflicts = FALSE)
@@ -13,42 +11,55 @@ library(here)
 library(cowplot)
 library(viridis)
 library(patchwork)
-library(gptstudio)
+# library(gptstudio)
 ```
 
 ```{r Data}
 #| include: false
-# Read the `B30.csv` file using `read_csv` from the `here` package
+
+#JJ
+## Read the `B30.csv` file using `read_csv` from the `here` package
 AQ1 <- read_csv(here("B30.csv")) %>% 
   mutate(line = "30 μm")  # Add a new column called "line" with the value "30 μm"
     
-# Read the `A100.csv` file using `read_csv` from the `here` package
+## Read the `A100.csv` file using `read_csv` from the `here` package
 # Add a new column called "line" with the value "100 μm"
 # Reverse the rows using the `map_df` function from `purrr` package
 AQ2 <- read_csv(here("A100.csv")) %>% 
   mutate(line = "100 μm") %>% 
   map_df(rev)
 
-# Combine the data frames AQ1 and AQ2 using `bind_rows` from the `dplyr` package
-# Group the combined data frame by the "line" column
-# Calculate the "dist" column based on the row number and the "line" value
+## Combine the data frames AQ1 and AQ2 using `bind_rows` from the `dplyr` package
+## Group the combined data frame by the "line" column
+## Calculate the "dist" column based on the row number and the "line" value
 AQ <- bind_rows(AQ1, AQ2) %>% 
   group_by(line) %>% 
   mutate(dist = if_else(line == "30 μm", row_number()*0.03, row_number()*0.1))
 
-# Read the `MapMg.csv` file using `read_csv` from the `here` package
+## Read the `MapMg.csv` file using `read_csv` from the `here` package
 Map_mg <- read_csv(here("MapMg.csv")) %>% 
   mutate(element = "Mg/Ca")  # Add a new column called "element" with the value "Mg/Ca"
 
-# Read the `MapSr.csv` file using `read_csv` from the `here` package
+## Read the `MapSr.csv` file using `read_csv` from the `here` package
 # Add a new column called "element" with the value "Sr/Ca"
 # Filter the rows where "mg_ca" is less than 0.25
 Map_sr <- read_csv(here("MapSr.csv")) %>% 
   mutate(element = "Sr/Ca") %>% 
   filter(mg_ca < 0.25)
 
-# Combine the data frames Map_mg and Map_sr using `bind_rows` from the `dplyr` package
+## Combine the data frames Map_mg and Map_sr using `bind_rows` from the `dplyr` package
 Maps <- bind_rows(Map_mg, Map_sr)
+
+
+# A10-1BB
+LargeMap <- read_csv(here("AQ-A10-1BB Map.csv"))
+LargeLine <- read_csv(here("AQ-A10-1BB Line.csv")) %>% 
+    map_df(rev) %>% 
+    mutate(dist = row_number()*0.03)
+
+
+
+
 ```
 
 ## Line scan
@@ -112,4 +123,43 @@ Sr <- Map_sr %>%
 
 Mg+Sr
 
+```
+
+# Large Map and Line-Scan
+
+This is from sample A10-1BB. the map is on a 200 micron resolution, the scan on 30 micron.
+
+```{r Large Map and Line}
+#| echo: false
+#| fig-dpi: 600
+# LargePlot <- 
+  LargeMap %>% 
+  filter(mg_ca<1) %>% 
+  ggplot()+
+  aes(x,y,col=mg_ca, fill=mg_ca)+
+  geom_tile(show.legend = FALSE)+
+   labs(x= "mm", y="mm", subtitle="Mg/Ca")+
+  scale_fill_viridis(option = "D") +
+  scale_color_viridis(option = "D") +
+  coord_fixed()+
+  geom_path(data=LargeLine,col="white",linetype="dashed",show.legend = FALSE)+
+  theme_cowplot()
+
+
+# LinePlot <- 
+  LargeLine %>% 
+  filter(rstd<0.1) %>%
+  ggplot()+
+  aes(dist,mg_ca,col=mg_ca)+
+  geom_path(show.legend = FALSE)+
+  scale_color_viridis(option = "D") +
+  labs(x= "Distance", y="Mg/Ca")+
+  scale_y_continuous(limits = c(0,1.5))+
+    #coord_flip()+
+  theme_cowplot()
+# 
+# (plot_spacer()+LargePlot+plot_spacer())/LinePlot
+```
+
+```         
 ```
